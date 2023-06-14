@@ -2,20 +2,17 @@ const User = require("../model/User");
 const jwt = require("jsonwebtoken");
 
 exports.signup = async (req, res) => {
-  const emailExist = await User.findOne({ email: req.body.email });
-  if (emailExist) {
-    return res.status(400).send("Email already Exists");
-  }
-  // Create a new user
-  const user = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    password: req.body.password,
-  });
   try {
-    const savedUser = await user.save();
-    res.send(savedUser);
+    const { email, firstName, lastName, password } = req.body;
+
+    const emailExist = await User.exists({ email });
+    if (emailExist) {
+      return res.status(400).send("Email already exists");
+    }
+
+    const user = await User.create({ email, firstName, lastName, password });
+
+    res.send(user);
   } catch (err) {
     res.status(400).send(`Error while signing up: ${err}`);
   }
@@ -25,43 +22,36 @@ exports.signin = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res
-        .status(409)
-        .json({ message: "Email and password are required" });
+      return res.status(409).json({ message: "Email and password are required" });
     }
-    const user = await User.findOne({ email: email });
+
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(409).json({ message: "User not found" });
     }
+
     const validPassword = await user.comparePassword(password);
     if (!validPassword) {
       return res.status(409).json({ message: "Invalid password" });
     }
-    generateToken(user, 200, res);
+
+    const token = generateToken(user);
+    res.cookie("token", token, { httpOnly: true });
+    res.status(200).json({ success: true, token });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-const generateToken = async (user, statusCode, res) => {
-  const token = await user.jwtGenerateToken();
-  const expireToken = 24 * 60 * 60 * 1000;
-  const options = {
-    httpOnly: true,
-    expires: new Date(Date.now() + expireToken),
-  };
-  res
-    .status(statusCode)
-    .cookie("token", token, options)
-    .json({ success: true, token });
+const generateToken = (user) => {
+  return jwt.sign({ userId: user._id }, "secret_key", { expiresIn: "24h" });
 };
 
-exports.logout = (req, res, next) => {
+exports.logout = (req, res) => {
   res.clearCookie("token");
   res.status(200).json({
     success: true,
-    message: "Loggged out",
+    message: "Logged out",
   });
 };
-// heloo 
