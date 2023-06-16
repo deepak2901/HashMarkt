@@ -1,35 +1,59 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../../Context/AuthContext'
-import styles from './styles.module.css'
-import { LoginIcon } from '@heroicons/react/outline'
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../../Context/AuthContext";
+import styles from "./styles.module.css";
+import { LoginIcon } from "@heroicons/react/outline";
+import { signin } from "../../../Pages/Services/authService";
 
 const Signin = () => {
+  const {
+    currentUser,
+    login,
+    setCurrentUser,
+    setIsSubmitting,
+    loggedIn,
+    setLoggedIn,
+  } = useAuth();
 
-  const { currentUser, login, setCurrentUser, setIsSubmitting, loggedIn } = useAuth()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-
-  const emailRef = useRef()
-  const passwordRef = useRef()
+  const emailRef = useRef();
+  const passwordRef = useRef();
 
   const handleSignIn = async (e) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    try {
-      await login(emailRef.current.value, passwordRef.current.value)
-    } catch {
-      alert("Error!")
-    }
-    setIsSubmitting(false)
-  }
+    e.preventDefault();
+    setIsSubmitting(true);
 
-  const navigate = useNavigate()
-  
+    try {
+      if (!email || !password) {
+        throw new Error("Email and password are required.");
+      }
+      const data = await signin(email, password);
+      console.log(data);
+      if (data.token) {
+        setEmail("");
+        setPassword("");
+        login(data.token);
+        console.log("Log In successful");
+        localStorage.setItem("token", data.token);
+        setLoggedIn(true);
+      } else {
+        throw new Error("Login failed. Please check your credentials.");
+      }
+    } catch (error) {
+      console.error("Error while signing in:", error.message);
+      // Handle the error condition (e.g., display an error message to the user)
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const navigate = useNavigate();
+
   useEffect(() => {
-    loggedIn && navigate('/')
-  }, [loggedIn])
+    loggedIn && navigate("/");
+  }, [loggedIn, navigate]);
 
   return (
     <div className={styles.formGroupContainer}>
@@ -71,7 +95,10 @@ const Signin = () => {
               <div className={styles.linkDiv}>
                 <span>
                   Don't have an account? Sign up{" "}
-                  <Link to="/signup" className="text-yellow-400 hover:underline">
+                  <Link
+                    to="/signup"
+                    className="text-yellow-400 hover:underline"
+                  >
                     {" "}
                     here.
                   </Link>
@@ -88,7 +115,7 @@ const Signin = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Signin
+export default Signin;

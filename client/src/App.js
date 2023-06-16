@@ -10,23 +10,27 @@ import Container from './Components/Container'
 import ProductDetail from './Pages/ProductDetail'
 import Cart from './Pages/Cart'
 import Favorites from './Pages/Favorites'
+import ProtectedRoute from './Pages/ProtectedRoute';
+import {AuthProvider} from './Context/AuthContext'
 
 function App() {
   return (
     <div className="container mx-auto bg-slate-700">
+      <AuthProvider>
       <Navbar />
       <Container>
         <Routes>
-          <Route path="/" exact element={<Products />} />
-          <Route path="/:category_id" element={<Products />} />
-          <Route path="/product/:product_id" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/signin" element={<Signin />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="*" element={<Error404 />} />
+          <Route exact path="/" element={<Products />} />
+          <Route exact path="/:category_id" element={<Products />} />
+          <Route exact path="/product/:product_id" element={<ProductDetail />} />
+          <Route exact path="/cart" element={<Cart />} />
+          <Route exact path="/favorites" element={<Favorites />} />
+          <Route exact path="/signin" element={<Signin />} />
+          <Route exact path="/signup" element={<Signup />} />
+          <Route exact path="*" element={<Error404 />} />
         </Routes>
       </Container>
+      </AuthProvider>
     </div>
   )
 }
