@@ -20,7 +20,7 @@ const validations = (currentUser, users) => {
   }
   if (!currentUser.password) {
     errors.password = "Password is required."
-  } else if (currentUser.password.length < 8) {
+  } else if (currentUser.password.length < 6) {
     errors.password = "Password must be more than eight characters."
   }
   if (!currentUser.passwordConfirm) {

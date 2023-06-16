@@ -32,6 +32,20 @@ const userSchema = new mongoose.Schema(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{6,30}$/,
         "Password must be six characters including one uppercase letter, one special character and alphanumeric characters?",
       ],
+      favorites: {
+        type: [Number],
+        required: true,
+      },
+      cart_items: {
+        type: [Number],
+        required: true,
+      },
+
+
+
+
+
+
     },
   },
   { timestamps: true }
