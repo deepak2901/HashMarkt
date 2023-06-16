@@ -1,7 +1,7 @@
 const User = require("../model/User");
 const jwt = require("jsonwebtoken");
 
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   const emailExist = await User.findOne({ email: req.body.email });
   if (emailExist) {
     return res.status(400).send("Email already Exists");
@@ -15,13 +15,14 @@ exports.signup = async (req, res) => {
   });
   try {
     const savedUser = await user.save();
-    res.send(savedUser);
+    res.status(201).json({success: true, savedUser});
   } catch (err) {
     res.status(400).send(`Error while signing up: ${err}`);
+    next(err)
   }
 };
 
-exports.signin = async (req, res) => {
+exports.signin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -38,6 +39,7 @@ exports.signin = async (req, res) => {
       return res.status(409).json({ message: "Invalid password" });
     }
     generateToken(user, 200, res);
+    next();
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Internal server error" });
@@ -63,4 +65,5 @@ exports.logout = (req, res, next) => {
     success: true,
     message: "Loggged out",
   });
+  next();
 };
