@@ -1,38 +1,43 @@
 const mongoose = require('mongoose');
-const productSchema = new mongoose.Schema({
-  "id": {
-    "type": "integer"
-  },
-  "title": {
-    "type": "string"
-  },
-  "price": {
-    "type": "number"
-  },
-  "description": {
-    "type": "string"
-  },
-  "category": {
-    "type": "string"
-  },
-  "image": {
-    "type": "string",
-    "format": "uri"
-  },
-  "rating": {
-    "type": "object",
-    "properties": {
-      "rate": {
-        "type": "number"
-      },
-      "count": {
-        "type": "integer"
-      }
-    },
-    "required": ["rate", "count"]
-  },
 
-  "required": ["id", "title", "price", "description", "category", "image", "rating"]
+const productSchema = new mongoose.Schema({
+  id: {
+    type: Number,
+    validate: {
+      validator: Number.isInteger,
+      message: '{VALUE} is not an integer value for {PATH}.'
+    }
+  },
+  title: {
+    type: String
+  },
+  price: {
+    type: Number
+  },
+  description: {
+    type: String
+  },
+  category: {
+    type: String
+  },
+  image: {
+    type: String,
+    format: 'uri'
+  },
+  rating: {
+    type: {
+      rate: {
+        type: Number
+      },
+      count: {
+        type: Number,
+        validate: {
+          validator: Number.isInteger,
+          message: '{VALUE} is not an integer value for {PATH}.'
+        }
+      }
+    }
+  }
 });
 
 const Product = mongoose.model('Product', productSchema);

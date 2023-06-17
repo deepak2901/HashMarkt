@@ -1,33 +1,33 @@
 const express = require("express");
-const cors = require('cors'); 
+const cors = require('cors');
 const dotenv = require("dotenv");
-const database = require("../server/config/database")
-const cookieParser = require('cookie-parser')
+const mongoose = require("mongoose");
+
 const auth = require("./routes/auth");
+const product = require("./routes/product");
 
 dotenv.config();
-
-
-
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(cookieParser())
 
-database.once('open', () => {
-    console.log('Connected')
-})
+// Connect to MongoDB
+mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB", err);
+    process.exit(1);
+  });
 
 // Routes
 app.use("/api", auth);
-
+app.use("/api/product", product);
 
 const port = process.env.PORT || 8000;
 
-app.listen(port, () => console.log(`Server running on port ${port} 🎆`));
-
-
-
-
-// npm i cors
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
