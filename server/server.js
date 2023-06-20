@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 
 const auth = require("./routes/auth");
 const product = require("./routes/product");
+const user = require("./routes/user");
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useUnif
 // Routes
 app.use("/api", auth);
 app.use("/api/product", product);
+app.use("/api/user", user);
 
 const port = process.env.PORT || 8000;
 
